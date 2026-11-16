@@ -3,7 +3,7 @@
 Ask questions about a GitHub repository and get answers that cite the exact
 files and line ranges they came from.
 
-**Live demo:** https://vinay-pepakayala-reposage.hf.space
+**Live demo:** https://vnaye.github.io/Reposage-web/
 
 RepoSage is a full RAG pipeline: it downloads a repo, chunks it, embeds it,
 stores it in Postgres + pgvector, retrieves with hybrid search, reranks,
