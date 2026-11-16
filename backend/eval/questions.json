@@ -1,0 +1,46 @@
+{
+  "name": "demo_repo",
+  "path": "fixtures/demo_repo",
+  "questions": [
+    {
+      "id": "q1",
+      "question": "How are authentication tokens created and validated?",
+      "expected_paths": ["auth.py"]
+    },
+    {
+      "id": "q2",
+      "question": "What happens when a token has expired?",
+      "expected_paths": ["auth.py", "api.py"]
+    },
+    {
+      "id": "q3",
+      "question": "How does reciprocal rank fusion combine vector and keyword results?",
+      "expected_paths": ["retrieval.py"]
+    },
+    {
+      "id": "q4",
+      "question": "What is the default retrieval_top_k value?",
+      "expected_paths": ["config.py"]
+    },
+    {
+      "id": "q5",
+      "question": "What status code is returned for an invalid token on the chat endpoint?",
+      "expected_paths": ["api.py"]
+    },
+    {
+      "id": "q6",
+      "question": "How are passwords hashed with a salt?",
+      "expected_paths": ["auth.py"]
+    },
+    {
+      "id": "q7",
+      "question": "Which settings are loaded from environment variables?",
+      "expected_paths": ["config.py"]
+    },
+    {
+      "id": "q8",
+      "question": "What does this demo repository contain?",
+      "expected_paths": ["README.md"]
+    }
+  ]
+}

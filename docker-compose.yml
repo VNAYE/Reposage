@@ -1,0 +1,78 @@
+name: reposage
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: reposage
+      POSTGRES_PASSWORD: reposage
+      POSTGRES_DB: reposage
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reposage -d reposage"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build: ./backend
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      CHAT_PROVIDER: gemini
+      EMBEDDING_PROVIDER: gemini
+      CHAT_MODEL: ${CHAT_MODEL:-gemini-3.5-flash-lite}
+      CHAT_FALLBACK_MODELS: ${CHAT_FALLBACK_MODELS:-gemini-3.1-flash-lite}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-gemini-embedding-001}
+      EMBEDDING_DIM: ${EMBEDDING_DIM:-768}
+      EMBEDDING_TOKENS_PER_MINUTE: ${EMBEDDING_TOKENS_PER_MINUTE:-30000}
+      DATABASE_URL: postgresql://reposage:reposage@db:5432/reposage
+      STORAGE_BACKEND: postgres
+      METRICS_BACKEND: postgres
+      RERANKER: ${RERANKER:-heuristic}
+      VERIFIER_PROVIDER: ${VERIFIER_PROVIDER:-composite}
+      VERIFY_ANSWERS: ${VERIFY_ANSWERS:-true}
+      INJECTION_ACTION: ${INJECTION_ACTION:-block}
+      MAX_CHUNKS: ${MAX_CHUNKS:-1500}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      CORS_ORIGINS: http://localhost:5173,http://localhost:8080
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  gradio:
+    profiles: ["demo"]
+    build:
+      context: .
+      dockerfile: deploy/huggingface/Dockerfile
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      CHAT_MODEL: ${CHAT_MODEL:-gemini-3.5-flash-lite}
+      CHAT_FALLBACK_MODELS: ${CHAT_FALLBACK_MODELS:-gemini-3.1-flash-lite}
+      STORAGE_BACKEND: postgres
+      METRICS_BACKEND: postgres
+      EMBEDDED_POSTGRES: "true"
+      PGDATA: /data/pgdata
+      MAX_CHUNKS: ${MAX_CHUNKS:-800}
+    ports:
+      - "7860:7860"
+    volumes:
+      - indexdata:/data
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  indexdata:
